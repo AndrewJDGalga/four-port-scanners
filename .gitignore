@@ -1,0 +1,12 @@
+*
+**/*
+
+!go/
+!python/
+!ps/
+!bash/
+!.gitignore
+!*.go
+!*.py
+!*.sh
+!*.ps1
