@@ -3,8 +3,24 @@ param (
     [string]$portsStr=("1,65535")
 )
 
+enum AddressOperationTypes {
+    AddressSingle
+    AddressRange
+    AddressList
+}
+
+enum PortOperationTypes{
+    PortSingle
+    PortRange
+    PortList
+}
+
 $targetPorts = $portsStr.Split(",")
-for($i = 0; $i -le $targetPorts.Length; $i++){
+$portCount = $targetPorts.Length
+
+
+'''
+for($i = 0; $i -le $operationType; $i++){
     Write-Host $targetPorts[$i]
 }
-#Write-Host $targetPorts.Length
+'''
