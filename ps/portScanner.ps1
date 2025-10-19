@@ -7,20 +7,25 @@ enum AddressOperationTypes {
     AddressSingle
     AddressRange
     AddressList
+    AddressErr
 }
+$addrType = [AddressOperationTypes]::AddressErr
 
 enum PortOperationTypes{
     PortSingle
     PortRange
     PortList
+    PortErr
 }
+$portType = [PortOperationTypes]::PortErr
 
 $targetPorts = $portsStr.Split(",")
-$portCount = $targetPorts.Length
+$targetAddrs = $addrsStr.Split(",")
 
 
-'''
+
+<#
 for($i = 0; $i -le $operationType; $i++){
     Write-Host $targetPorts[$i]
 }
-'''
+#>
