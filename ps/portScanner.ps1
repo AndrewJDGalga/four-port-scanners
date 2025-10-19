@@ -22,10 +22,13 @@ $portType = [PortOperationTypes]::PortErr
 $targetPorts = $portsStr.Split(",")
 $targetAddrs = $addrsStr.Split(",")
 
-
-
-<#
-for($i = 0; $i -le $operationType; $i++){
-    Write-Host $targetPorts[$i]
+if (Test-Connection -Quiet -Count 1 -ComputerName 1.1.1.1){
+    Write-Host "Computer up"
 }
-#>
+
+function Scan-AddressPorts(){
+    $testAddress = 1.1.1.1
+    for($i = 0; $i -le 1..65535; $i++){
+        
+    }
+}
