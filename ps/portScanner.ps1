@@ -22,13 +22,22 @@ $portType = [PortOperationTypes]::PortErr
 $targetPorts = $portsStr.Split(",")
 $targetAddrs = $addrsStr.Split(",")
 
-if (Test-Connection -Quiet -Count 1 -ComputerName 1.1.1.1){
-    Write-Host "Computer up"
-}
 
-function Scan-AddressPorts(){
-    $testAddress = 1.1.1.1
-    for($i = 0; $i -le 1..65535; $i++){
-        
+function Scan-AddressPorts {
+    $successAddress = "127.0.0.1"
+    $failAddress = "172.16.10.22"
+    #port0 appears typically ignored?
+    for($port = 1; $port -le 65535; $port++){
+        if (Test-Connection -Quiet -Count 1 -ComputerName $successAddress){
+            try {
+                $socket = New-Object System.Net.Sockets.TcpClient($successAddress, $port)
+                if($socket.Connected){
+                    "Port open: $port"
+                    $socket.Close()
+                }
+            } catch { "Skipping $port"}
+        }
     }
 }
+Write-Host "Scanning..."
+Scan-AddressPorts
