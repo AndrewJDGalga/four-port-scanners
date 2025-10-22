@@ -1,10 +1,6 @@
 package main
 
 import (
-	/*
-		"flag"
-		"os"
-	*/
 	"fmt"
 	"net"
 	"time"
@@ -18,13 +14,13 @@ func main() {
 			fmt.Println(os.Args)
 		}
 	*/
-	/*
-		for i := 1; i < 65535; i++ {
+	for i := 1; i < 65535; i++ {
 
-		}
-	*/
+	}
+}
 
-	conn, err := net.DialTimeout("tcp", "127.0.0.1:80", time.Second)
+func SinglePortScan(addrAndPort string, duration time.Duration) {
+	conn, err := net.DialTimeout("tcp", addrAndPort, duration)
 	if err == nil {
 		conn.Close()
 		fmt.Printf("%d Open\n", 80)
