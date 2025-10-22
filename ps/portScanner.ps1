@@ -24,7 +24,7 @@ $targetAddrs = $addrsStr.Split(",")
 
 function Scan-PortsJob {
     $totalJobs = 65535
-    $batchSize = 10
+    $batchSize = 10 #expecting load
     $currentJobs = @()
 
     for($i = 1; $i -le $totalJobs; $i++){
@@ -37,8 +37,17 @@ function Scan-PortsJob {
                 $socket.Close()
             }
         } -ArgumentList $i
+        $currentJobs += $nextJob
 
+        if(($currentJobs.Count % $batchSize) -eq 0){
+            Wait-Job $currentJobs
+            Receive-Job -Job $currentJobs | ForEach-Object { Write-Output $_ }
+            $currentJobs | Remove-Job
+            $currentJobs = @() #clear has proven unreliable
+        }
     }
+
+    #TODO: Clear remaining jobs
 }
 
 function Scan-AddressPorts {
