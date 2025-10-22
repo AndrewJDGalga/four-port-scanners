@@ -23,7 +23,22 @@ $targetPorts = $portsStr.Split(",")
 $targetAddrs = $addrsStr.Split(",")
 
 function Scan-PortsJob {
-    
+    $totalJobs = 65535
+    $batchSize = 10
+    $currentJobs = @()
+
+    for($i = 1; $i -le $totalJobs; $i++){
+        $nextJob = Start-Job -ScriptBlock {
+            param([int] $port)
+
+            $socket = New-Object System.Net.Sockets.TcpClient($successAddress, $port)
+            if($socket.Connected){
+                "Port open: $port"
+                $socket.Close()
+            }
+        } -ArgumentList $i
+
+    }
 }
 
 function Scan-AddressPorts {
