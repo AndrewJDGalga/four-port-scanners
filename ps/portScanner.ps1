@@ -31,11 +31,13 @@ function Scan-PortsJob {
         $nextJob = Start-Job -ScriptBlock {
             param([int] $port)
 
-            $socket = New-Object System.Net.Sockets.TcpClient($successAddress, $port)
-            if($socket.Connected){
-                "Port open: $port"
-                $socket.Close()
-            }
+            try{
+                $socket = New-Object System.Net.Sockets.TcpClient($successAddress, $port)
+                if($socket.Connected){
+                    "Port open: $port"
+                    $socket.Close()
+                }
+            } catch [System.Net.Sockets.SocketException] { }
         } -ArgumentList $i
         $currentJobs += $nextJob
 
@@ -75,3 +77,4 @@ function Scan-AddressPorts {
 }
 
 Write-Host "Scanning..."
+Scan-PortsJob
