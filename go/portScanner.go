@@ -16,12 +16,15 @@ func main() {
 		}
 	*/
 	var wg sync.WaitGroup
-	for i := 70; i < 100; i++ {
+	for i := 1; i < 1000; i++ {
 		wg.Go(func() {
 			singlePortScan(fmt.Sprintf("127.0.0.1:%d", i), time.Second, i)
 		})
+		if i%10 == 0 {
+			wg.Wait()
+		}
 	}
-	wg.Wait()
+
 }
 
 func singlePortScan(addrAndPort string, duration time.Duration, port int) {
@@ -30,6 +33,9 @@ func singlePortScan(addrAndPort string, duration time.Duration, port int) {
 		conn.Close()
 		fmt.Printf("%d Open\n", port)
 	} else {
-		fmt.Println(err)
+		if conn != nil {
+			fmt.Println(err)
+			conn.Close()
+		}
 	}
 }
