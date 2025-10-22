@@ -39,15 +39,24 @@ function Scan-PortsJob {
         } -ArgumentList $i
         $currentJobs += $nextJob
 
+        Write-Host "Added job $i of $totalJobs."
+
         if(($currentJobs.Count % $batchSize) -eq 0){
+            Write-Host "Processing $($currentJobs.Count) jobs..."
+
             Wait-Job $currentJobs
             Receive-Job -Job $currentJobs | ForEach-Object { Write-Output $_ }
             $currentJobs | Remove-Job
-            $currentJobs = @() #clear has proven unreliable
+            $currentJobs = @() #clear() has proven unreliable
         }
     }
 
-    #TODO: Clear remaining jobs
+    if($currentJobs.Count -gt 0){
+        Wait-Job $currentJobs
+        Receive-Job -Job $currentJobs | ForEach-Object { Write-Output $_ }
+        $currentJobs | Remove-Job
+        $currentJobs = @()
+    }
 }
 
 function Scan-AddressPorts {
