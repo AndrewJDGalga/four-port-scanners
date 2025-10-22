@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"sync"
 	"time"
 )
 
@@ -14,16 +15,20 @@ func main() {
 			fmt.Println(os.Args)
 		}
 	*/
-	for i := 1; i < 65535; i++ {
-
+	var wg sync.WaitGroup
+	for i := 70; i < 100; i++ {
+		wg.Go(func() {
+			singlePortScan(fmt.Sprintf("127.0.0.1:%d", i), time.Second, i)
+		})
 	}
+	wg.Wait()
 }
 
-func SinglePortScan(addrAndPort string, duration time.Duration) {
+func singlePortScan(addrAndPort string, duration time.Duration, port int) {
 	conn, err := net.DialTimeout("tcp", addrAndPort, duration)
 	if err == nil {
 		conn.Close()
-		fmt.Printf("%d Open\n", 80)
+		fmt.Printf("%d Open\n", port)
 	} else {
 		fmt.Println(err)
 	}
