@@ -37,7 +37,17 @@ func singlePortScanErr(addrAndPort string, duration time.Duration, port int) {
 	_, err := net.DialTimeout("tcp", addrAndPort, duration)
 	if err != nil {
 		if opError, ok := err.(*net.OpError); ok {
-			fmt.Println(opError.Err)
+
+			switch opError.Err.Error() {
+			case "i/o timeout":
+				fmt.Println("i o error")
+			case "connectex: No connection could be made because the target machine actively refused it.":
+				fmt.Println("connection error")
+			default:
+				fmt.Println("no conditions triggered")
+			}
+
+			//fmt.Println(opError.Err.Error())
 		}
 
 	}
