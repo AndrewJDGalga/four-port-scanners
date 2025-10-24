@@ -42,26 +42,6 @@ func scanPorts() {
 	wg.Wait()
 }
 
-func singlePortScanErr(addrAndPort string, duration time.Duration, port int) {
-	_, err := net.DialTimeout("tcp", addrAndPort, duration)
-	if err != nil {
-		if opError, ok := err.(*net.OpError); ok {
-
-			switch opError.Err.Error() {
-			case "i/o timeout":
-				fmt.Println("i o error")
-			case "connectex: No connection could be made because the target machine actively refused it.":
-				fmt.Println("connection error")
-			default:
-				fmt.Println("no conditions triggered")
-			}
-
-			//fmt.Println(opError.Err.Error())
-		}
-
-	}
-}
-
 func singlePortScan(addr string, network string, duration time.Duration) (bool, error) {
 	success := true
 	conn, err := net.DialTimeout(network, addr, duration)
@@ -70,27 +50,9 @@ func singlePortScan(addr string, network string, duration time.Duration) (bool, 
 	}
 	if err != nil {
 		success = false
-		if opError, ok := err.(*net.OpError); ok {
-			if !strings.Contains(opError.Err.Error(), "conn") {
-				err = nil
-			}
+		if opError, ok := err.(*net.OpError); ok && !strings.Contains(opError.Err.Error(), "conn") {
+			err = nil
 		}
 	}
 	return success, err
 }
-
-/*
-func singlePortScan(addrAndPort string, duration time.Duration, port int) {
-	conn, err := net.DialTimeout("tcp", addrAndPort, duration)
-	if err == nil {
-		conn.Close()
-		fmt.Printf("%d Open\n", port)
-	} else {
-		fmt.Printf("Error: '%v'\nOf type '%T'\n", err, err)
-
-		if conn != nil {
-			conn.Close()
-		}
-	}
-}
-*/
