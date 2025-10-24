@@ -30,7 +30,30 @@ func main() {
 		}
 	*/
 
-	scanAddresses()
+	//scanAddresses()
+	scanSubnet()
+}
+
+func scanSubnet() {
+	testNet := "192.168.1.0/8"
+
+	ip, ipnet, err := net.ParseCIDR(testNet)
+	for err != nil {
+		panic(err)
+	}
+
+	for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); incrementIP(ip) {
+		fmt.Println(ip)
+	}
+}
+
+func incrementIP(ip net.IP) {
+	for i := len(ip) - 1; i >= 0; i++ {
+		ip[i]++
+		if ip[i] > 0 {
+			break
+		}
+	}
 }
 
 func scanPorts() {
