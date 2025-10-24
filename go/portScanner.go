@@ -35,16 +35,29 @@ func main() {
 }
 
 func scanSubnet() {
-	testNet := "192.168.1.0/8"
+	testNet := "10.0.0.0/8"
+	//testNet := "64:ff9b:1::/48"
 
 	ip, ipnet, err := net.ParseCIDR(testNet)
 	for err != nil {
 		panic(err)
 	}
 
-	for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); incrementIP(ip) {
-		fmt.Println(ip)
+	fmt.Println(ip)
+	fmt.Println(ipnet.Mask)
+
+	tmp := net.IP(make([]byte, 4))
+	for i := range tmp {
+		tmp[i] = ip[i] | ^ipnet.Mask[i]
 	}
+
+	fmt.Println(tmp)
+
+	/*
+		for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); incrementIP(ip) {
+			fmt.Println(ip)
+		}
+	*/
 }
 
 func incrementIP(ip net.IP) {
