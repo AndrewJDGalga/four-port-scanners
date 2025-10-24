@@ -19,14 +19,18 @@ func main() {
 	//singlePortScanErr("172.16.24.24:445", time.Second, 445) //dial tcp 172.16.24.24:445: i/o timeout
 	//singlePortScanErr("127.0.0.1:80", time.Second, 80)
 	//singlePortScan("127.0.0.1:80", time.Second, 80)      //dial tcp 127.0.0.1:80: connectex: No connection could be made because the target machine actively refused it.
-	_, err := singlePortScan("127.0.0.1:80", "tcp", time.Second)
-	if err != nil {
-		fmt.Println(err)
-	}
-	_, err = singlePortScan("172.16.24.24:445", "tcp", time.Second)
-	if err == nil {
-		fmt.Println("no error")
-	}
+	/*
+		_, err := singlePortScan("127.0.0.1:80", "tcp", time.Second)
+		if err != nil {
+			fmt.Println(err)
+		}
+		_, err = singlePortScan("172.16.24.24:445", "tcp", time.Second)
+		if err == nil {
+			fmt.Println("no error")
+		}
+	*/
+
+	scanAddresses()
 }
 
 func scanPorts() {
@@ -35,6 +39,26 @@ func scanPorts() {
 		wg.Go(func() {
 			//singlePortScan(fmt.Sprintf("127.0.0.1:%d", i), time.Second, i)
 		})
+		if i%10 == 0 {
+			wg.Wait()
+		}
+	}
+	wg.Wait()
+}
+
+func scanAddresses() {
+	testAddresses := [5]string{"127.0.0.1:443", "172.16.24.24:443", "172.16.0.1:443", "1.1.1.1:443", "8.8.8.8:443"}
+
+	var wg sync.WaitGroup
+	for i := 0; i < len(testAddresses); i++ {
+		wg.Go(func() {
+			if ok, _ := singlePortScan(testAddresses[i], "tcp", time.Second); ok {
+				fmt.Printf("Good: %s\n", testAddresses[i])
+			} else {
+				fmt.Printf("Bad: %s\n", testAddresses[i])
+			}
+		})
+
 		if i%10 == 0 {
 			wg.Wait()
 		}
