@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"net/netip"
 	"strings"
 	"sync"
 	"time"
@@ -31,7 +32,22 @@ func main() {
 	*/
 
 	//scanAddresses()
-	scanSubnet()
+	scanSubnetNetIP()
+}
+
+func scanSubnetNetIP() {
+	testNet := "192.168.1.254"
+	//testNet := "64:ff9b:1::/48"
+	//testNet := "fe80::1ff:fe23:4567:890a%3"
+
+	//prefix, _ := netip.ParsePrefix(testNet)
+	address, _ := netip.ParseAddr(testNet)
+	prefix := netip.PrefixFrom(address, 24)
+	//fmt.Println(prefix.Addr().Next())
+	fmt.Println(prefix.Contains(prefix.Addr().Next()))
+	//fmt.Println(prefix.Addr())
+
+	//oprefix := netip.PrefixFrom("10.0.0.0", 16)
 }
 
 func scanSubnet() {
