@@ -36,18 +36,23 @@ func main() {
 }
 
 func scanSubnetNetIP() {
-	testNet := "192.168.1.254"
+	testNet := "10.10.0.0"
 	//testNet := "64:ff9b:1::/48"
 	//testNet := "fe80::1ff:fe23:4567:890a%3"
 
 	//prefix, _ := netip.ParsePrefix(testNet)
 	address, _ := netip.ParseAddr(testNet)
-	prefix := netip.PrefixFrom(address, 24)
+	prefix := netip.PrefixFrom(address, 16)
 	//fmt.Println(prefix.Addr().Next())
-	fmt.Println(prefix.Contains(prefix.Addr().Next()))
+	//fmt.Println(prefix.Contains(prefix.Addr().Next()))
 	//fmt.Println(prefix.Addr())
 
 	//oprefix := netip.PrefixFrom("10.0.0.0", 16)
+
+	for outOfRange := true; outOfRange; outOfRange = prefix.Contains(prefix.Addr().Next()) {
+		fmt.Println(prefix.Addr())
+		prefix = netip.PrefixFrom(prefix.Addr().Next(), 16)
+	}
 }
 
 func scanPorts() {
