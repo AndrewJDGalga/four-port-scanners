@@ -33,7 +33,9 @@ func main() {
 
 	//testNet := "64:ff9b:1::/48"
 	//testNet := "fe80::1ff:fe23:4567:890a%3"
-	scanSubnet("192.168.1.10", 26)
+	//scanSubnet("192.168.1.10", 26)
+	slicePtr := scanPorts("127.0.0.1", "tcp", time.Second)
+	fmt.Println(len(*slicePtr))
 }
 
 func scanSubnet(address string, subnet int) {
@@ -41,22 +43,29 @@ func scanSubnet(address string, subnet int) {
 	prefix := netip.PrefixFrom(addr, subnet)
 
 	for outOfRange := true; outOfRange; outOfRange = prefix.Contains(prefix.Addr().Next()) {
-		fmt.Println(prefix.Addr())
+		//fmt.Println(prefix.Addr())
+		//if singlePortScan(prefix.Addr().String(), prefix.String(), time.Second)
+
 		prefix = netip.PrefixFrom(prefix.Addr().Next(), subnet)
 	}
 }
 
-func scanPorts() {
+func scanPorts(addr string, network string, duration time.Duration) *[]int {
+	ports := make([]int, 65535)
 	var wg sync.WaitGroup
 	for i := 1; i < 65535; i++ {
 		wg.Go(func() {
 			//singlePortScan(fmt.Sprintf("127.0.0.1:%d", i), time.Second, i)
+			if ok, _ := singlePortScan(addr, network, duration); ok {
+				ports = append(ports, i)
+			}
 		})
 		if i%10 == 0 {
 			wg.Wait()
 		}
 	}
 	wg.Wait()
+	return &ports
 }
 
 func scanAddresses() {
