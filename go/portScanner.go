@@ -34,8 +34,7 @@ func main() {
 	//testNet := "64:ff9b:1::/48"
 	//testNet := "fe80::1ff:fe23:4567:890a%3"
 	//scanSubnet("192.168.1.10", 26)
-	//slicePtr :=
-	scanPorts("192.168.1.66", "tcp", time.Second)
+	//scanPorts("192.168.1.66", "tcp", time.Second)
 	//fmt.Println(len(slicePtr))
 }
 
@@ -104,6 +103,20 @@ func scanAddresses() {
 		}
 	}
 	wg.Wait()
+}
+
+func portOpen(network string, addr string, duration time.Duration) bool {
+	isOpen := true
+
+	conn, err := net.DialTimeout(network, addr, duration)
+	if conn != nil {
+		conn.Close()
+	}
+	if err != nil {
+		isOpen = false
+	}
+
+	return isOpen
 }
 
 func singlePortScan(addr string, network string, duration time.Duration) (bool, error) {
