@@ -34,8 +34,9 @@ func main() {
 	//testNet := "64:ff9b:1::/48"
 	//testNet := "fe80::1ff:fe23:4567:890a%3"
 	//scanSubnet("192.168.1.10", 26)
-	slicePtr := scanPorts("127.0.0.1", "tcp", time.Second)
-	fmt.Println(len(slicePtr))
+	//slicePtr :=
+	scanPorts("192.168.1.66", "tcp", time.Second)
+	//fmt.Println(len(slicePtr))
 }
 
 func scanSubnet(address string, subnet int) {
@@ -50,28 +51,39 @@ func scanSubnet(address string, subnet int) {
 	}
 }
 
-func scanPorts(addr string, network string, duration time.Duration) []int {
-	var mu sync.Mutex
+func scanPorts(addr string, network string, duration time.Duration) {
 	minPort := 1
 	maxPort := 65535 //65535
-	ports := make([]int, maxPort)
+	ports := make([]int, maxPort+1)
+	//portsChan := make(chan []int)
+	//defer close(portsChan)
 	var wg sync.WaitGroup
 	for i := minPort; i < maxPort; i++ {
 		wg.Go(func() {
 			//singlePortScan(fmt.Sprintf("127.0.0.1:%d", i), time.Second, i)
 			if ok, _ := singlePortScan(addr, network, duration); ok {
-				mu.Lock()
-				ports = append(ports, i)
-				mu.Unlock()
+				//ports = append(ports, i)
+				//tempSlice := make([]int, 1)
+				//tempSlice[0] = i
+				//portsChan <- tempSlice
+				ports[i] = 1
+			} else {
+				fmt.Println("Error")
 			}
 		})
 		if i%10 == 0 {
 			wg.Wait()
 		}
 	}
-	//wg.Wait()
-	fmt.Println(ports)
-	return ports
+	wg.Wait()
+	//fmt.Println(len(portsChan))
+	//fmt.Println(ports[443])
+	//return ports
+	for i := 1; i < maxPort+1; i++ {
+		if ports[i] == 1 {
+			fmt.Println(i)
+		}
+	}
 }
 
 func scanAddresses() {
