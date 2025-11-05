@@ -10,13 +10,6 @@ import (
 )
 
 func main() {
-	/*
-		addPtr := flag.String("a", "127.0.0.1", "Address(es) for scanning. Defaults to loopback.")
-		portRngPtr := flag.String("p", "1,65535", "Port(s) range for scanning. Defaults to 1,65535 == starting at 1, ending at 65535")
-		if len(os.Args) > 1 {
-			fmt.Println(os.Args)
-		}
-	*/
 	//singlePortScanErr("172.16.24.24:445", time.Second, 445) //dial tcp 172.16.24.24:445: i/o timeout
 	//singlePortScanErr("127.0.0.1:80", time.Second, 80)
 	//singlePortScan("127.0.0.1:80", time.Second, 80)      //dial tcp 127.0.0.1:80: connectex: No connection could be made because the target machine actively refused it.
@@ -35,7 +28,8 @@ func main() {
 	//testNet := "fe80::1ff:fe23:4567:890a%3"
 	//scanSubnet("192.168.1.10", 26)
 	//scanPorts("192.168.1.66", "tcp", time.Second)
-	//fmt.Println(len(slicePtr))
+	//fmt.Println(portOpen("ip", "192.168.1.66:443", time.Second))
+	fmt.Println(addressValid("192.168.1.66:443", 2*time.Second))
 }
 
 func scanSubnet(address string, subnet int) {
@@ -117,6 +111,24 @@ func portOpen(network string, addr string, duration time.Duration) bool {
 	}
 
 	return isOpen
+}
+
+func addressValid(addr string, duration time.Duration) bool {
+	isValid := false
+
+	conn, err := net.DialTimeout("tcp", addr, duration)
+	if conn != nil {
+		isValid = true
+		conn.Close()
+	}
+	if err != nil {
+		fmt.Println(err)
+		if opErr, ok := err.(*net.OpError); ok && opErr.Err.Error() == "connection refused" {
+			isValid = true
+		}
+	}
+
+	return isValid
 }
 
 func singlePortScan(addr string, network string, duration time.Duration) (bool, error) {
