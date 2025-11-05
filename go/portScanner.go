@@ -10,26 +10,8 @@ import (
 )
 
 func main() {
-	//singlePortScanErr("172.16.24.24:445", time.Second, 445) //dial tcp 172.16.24.24:445: i/o timeout
-	//singlePortScanErr("127.0.0.1:80", time.Second, 80)
-	//singlePortScan("127.0.0.1:80", time.Second, 80)      //dial tcp 127.0.0.1:80: connectex: No connection could be made because the target machine actively refused it.
-	/*
-		_, err := singlePortScan("127.0.0.1:80", "tcp", time.Second)
-		if err != nil {
-			fmt.Println(err)
-		}
-		_, err = singlePortScan("172.16.24.24:445", "tcp", time.Second)
-		if err == nil {
-			fmt.Println("no error")
-		}
-	*/
-
-	//testNet := "64:ff9b:1::/48"
-	//testNet := "fe80::1ff:fe23:4567:890a%3"
-	//scanSubnet("192.168.1.10", 26)
-	//scanPorts("192.168.1.66", "tcp", time.Second)
-	//fmt.Println(portOpen("ip", "192.168.1.66:443", time.Second))
-	fmt.Println(addressValid("192.168.1.66:443", 2*time.Second))
+	//fmt.Println(addressValid("192.168.1.66:443", 2*time.Second))
+	pingAddress()
 }
 
 func scanSubnet(address string, subnet int) {
@@ -113,6 +95,19 @@ func portOpen(network string, addr string, duration time.Duration) bool {
 	return isOpen
 }
 
+func pingAddress() {
+	conn, err := net.DialTimeout("ip:icmp", "127.0.0.1", 2*time.Second)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	if conn != nil {
+		fmt.Println("Pinged?")
+		conn.Close()
+	}
+}
+
+/*
 func addressValid(addr string, duration time.Duration) bool {
 	isValid := false
 
@@ -130,6 +125,7 @@ func addressValid(addr string, duration time.Duration) bool {
 
 	return isValid
 }
+*/
 
 func singlePortScan(addr string, network string, duration time.Duration) (bool, error) {
 	success := true
