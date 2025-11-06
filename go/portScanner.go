@@ -13,17 +13,17 @@ import (
 func main() {
 	if len(os.Args) > 1 {
 		args := os.Args[1:]
-		addr, err := netip.ParseAddr(args[0])
+		tempAddr, err := netip.ParseAddr(args[0])
 		if err != nil {
 			fmt.Printf("Address must be in acceptable IPv4/IPv6 format without port numbers. Examples:\n0.0.0.0\n::1")
 			return
 		}
-		fmt.Println(addr)
+		//addr := []netip.Addr{tempAddr}
+		//scanAddresses(&addr)
+		scanAddresses(&[]netip.Addr{tempAddr})
 	} else {
 		fmt.Println("Correct usage:\n\t>go run portScanner.go [ip_address(:optional_port)(, additional_ip_addresses)]")
 	}
-
-	//scanAddresses()
 }
 
 func scanPorts(addr string, network string, duration time.Duration) {
@@ -61,24 +61,25 @@ func scanPorts(addr string, network string, duration time.Duration) {
 	}
 }
 
-func scanAddresses() {
-	testAddresses := [5]string{"127.0.0.1:443", "172.16.24.24:443", "172.16.0.1:443", "1.1.1.1:443", "8.8.8.8:443"}
+func scanAddresses(addrs *[]netip.Addr) {
+	fmt.Println((*addrs)[0].String())
+	/*
+		var wg sync.WaitGroup
+		for i := 0; i < len(*addrs); i++ {
+			wg.Go(func() {
+				if ok, _ := singlePortScan((*addrs)[i].String(), "tcp", time.Second); ok {
+					fmt.Printf("Good: %s\n", (*addrs)[i].String())
+				} else {
+					fmt.Printf("Bad: %s\n", (*addrs)[i].String())
+				}
+			})
 
-	var wg sync.WaitGroup
-	for i := 0; i < len(testAddresses); i++ {
-		wg.Go(func() {
-			if ok, _ := singlePortScan(testAddresses[i], "tcp", time.Second); ok {
-				fmt.Printf("Good: %s\n", testAddresses[i])
-			} else {
-				fmt.Printf("Bad: %s\n", testAddresses[i])
+			if i%10 == 0 {
+				wg.Wait()
 			}
-		})
-
-		if i%10 == 0 {
-			wg.Wait()
 		}
-	}
-	wg.Wait()
+		wg.Wait()
+	*/
 }
 
 func portOpen(network string, addr string, duration time.Duration) bool {
