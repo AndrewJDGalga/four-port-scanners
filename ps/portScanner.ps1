@@ -63,8 +63,7 @@ function Scan-PortsJob {
 
 function Scan-AddressPorts {
     $successAddress = "127.0.0.1"
-    $failAddress = "172.16.10.22"
-    #port0 appears typically ignored?
+    #$failAddress = "172.16.10.22"
     for($port = 1; $port -le 65535; $port++){
         try {
             $socket = New-Object System.Net.Sockets.TcpClient($successAddress, $port)
@@ -72,7 +71,7 @@ function Scan-AddressPorts {
                 "Port open: $port"
                 $socket.Close()
             }
-        } catch [System.Net.Sockets.SocketException] { "Skipping $port"}
+        } catch [System.Net.Sockets.SocketException] { }#"Skipping $port"}
     }
 }
 

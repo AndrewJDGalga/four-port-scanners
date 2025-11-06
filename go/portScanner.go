@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net"
-	"net/netip"
 	"strings"
 	"sync"
 	"time"
@@ -11,19 +10,7 @@ import (
 
 func main() {
 	//fmt.Println(addressValid("192.168.1.66:443", 2*time.Second))
-	pingAddress()
-}
-
-func scanSubnet(address string, subnet int) {
-	addr, _ := netip.ParseAddr(address)
-	prefix := netip.PrefixFrom(addr, subnet)
-
-	for outOfRange := true; outOfRange; outOfRange = prefix.Contains(prefix.Addr().Next()) {
-		//fmt.Println(prefix.Addr())
-		//if singlePortScan(prefix.Addr().String(), prefix.String(), time.Second)
-
-		prefix = netip.PrefixFrom(prefix.Addr().Next(), subnet)
-	}
+	scanAddresses()
 }
 
 func scanPorts(addr string, network string, duration time.Duration) {
@@ -94,38 +81,6 @@ func portOpen(network string, addr string, duration time.Duration) bool {
 
 	return isOpen
 }
-
-func pingAddress() {
-	conn, err := net.DialTimeout("ip:icmp", "127.0.0.1", 2*time.Second)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	if conn != nil {
-		fmt.Println("Pinged?")
-		conn.Close()
-	}
-}
-
-/*
-func addressValid(addr string, duration time.Duration) bool {
-	isValid := false
-
-	conn, err := net.DialTimeout("tcp", addr, duration)
-	if conn != nil {
-		isValid = true
-		conn.Close()
-	}
-	if err != nil {
-		fmt.Println(err)
-		if opErr, ok := err.(*net.OpError); ok && opErr.Err.Error() == "connection refused" {
-			isValid = true
-		}
-	}
-
-	return isValid
-}
-*/
 
 func singlePortScan(addr string, network string, duration time.Duration) (bool, error) {
 	success := true
