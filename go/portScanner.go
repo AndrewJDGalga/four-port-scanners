@@ -62,38 +62,21 @@ func scanPorts(addr string, network string, duration time.Duration) {
 }
 
 func scanAddresses(addrs *[]netip.Addr) {
-	fmt.Println((*addrs)[0].String())
-	/*
-		var wg sync.WaitGroup
-		for i := 0; i < len(*addrs); i++ {
-			wg.Go(func() {
-				if ok, _ := singlePortScan((*addrs)[i].String(), "tcp", time.Second); ok {
-					fmt.Printf("Good: %s\n", (*addrs)[i].String())
-				} else {
-					fmt.Printf("Bad: %s\n", (*addrs)[i].String())
-				}
-			})
-
-			if i%10 == 0 {
-				wg.Wait()
+	var wg sync.WaitGroup
+	for i := 0; i < len(*addrs); i++ {
+		wg.Go(func() {
+			if ok, _ := singlePortScan((*addrs)[i].String()+":443", "tcp", time.Second); ok {
+				fmt.Printf("Good: %s\n", (*addrs)[i].String())
+			} else {
+				fmt.Printf("Bad: %s\n", (*addrs)[i].String())
 			}
+		})
+
+		if i%10 == 0 {
+			wg.Wait()
 		}
-		wg.Wait()
-	*/
-}
-
-func portOpen(network string, addr string, duration time.Duration) bool {
-	isOpen := true
-
-	conn, err := net.DialTimeout(network, addr, duration)
-	if conn != nil {
-		conn.Close()
 	}
-	if err != nil {
-		isOpen = false
-	}
-
-	return isOpen
+	wg.Wait()
 }
 
 func singlePortScan(addr string, network string, duration time.Duration) (bool, error) {
