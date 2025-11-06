@@ -3,14 +3,27 @@ package main
 import (
 	"fmt"
 	"net"
+	"net/netip"
+	"os"
 	"strings"
 	"sync"
 	"time"
 )
 
 func main() {
-	//fmt.Println(addressValid("192.168.1.66:443", 2*time.Second))
-	scanAddresses()
+	if len(os.Args) > 1 {
+		args := os.Args[1:]
+		addr, err := netip.ParseAddr(args[0])
+		if err != nil {
+			fmt.Printf("Address must be in acceptable IPv4/IPv6 format without port numbers. Examples:\n0.0.0.0\n::1")
+			return
+		}
+		fmt.Println(addr)
+	} else {
+		fmt.Println("Correct usage:\n\t>go run portScanner.go [ip_address(:optional_port)(, additional_ip_addresses)]")
+	}
+
+	//scanAddresses()
 }
 
 func scanPorts(addr string, network string, duration time.Duration) {
