@@ -5,7 +5,6 @@ import (
 	"net"
 	"net/netip"
 	"os"
-	"strings"
 	"sync"
 	"time"
 )
@@ -36,11 +35,12 @@ func scanPorts(addr string, network string, duration time.Duration) {
 	for i := minPort; i < maxPort; i++ {
 		wg.Go(func() {
 			//singlePortScan(fmt.Sprintf("127.0.0.1:%d", i), time.Second, i)
-			if ok, _ := singlePortScan(addr, network, duration); ok {
-				//ports = append(ports, i)
-				//tempSlice := make([]int, 1)
-				//tempSlice[0] = i
-				//portsChan <- tempSlice
+			//if ok, _ := singlePortScan(addr, network, duration); ok {
+			//ports = append(ports, i)
+			//tempSlice := make([]int, 1)
+			//tempSlice[0] = i
+			//portsChan <- tempSlice
+			if singlePortScan(addr, network, duration) {
 				ports[i] = 1
 			} else {
 				fmt.Println("Error")
@@ -65,15 +65,19 @@ func scanAddresses(addrs *[]netip.Addr) {
 	var wg sync.WaitGroup
 	for i := 0; i < len(*addrs); i++ {
 		wg.Go(func() {
-			//if ok, _ := scanPorts((*addrs)[i].String())
+			/*
+				if ok, _ := scanPorts((*addrs)[i].String(), "tcp", time.Second); ok {
 
-			if ok, _ := singlePortScan((*addrs)[i].String()+":443", "tcp", time.Second); ok {
+				}
+			*/
+
+			if singlePortScan((*addrs)[i].String()+":443", "tcp", time.Second) {
 				fmt.Printf("Good: %s\n", (*addrs)[i].String())
 			} else {
 				fmt.Printf("Bad: %s\n", (*addrs)[i].String())
 			}
 
-			if ok, _ := singlePortScan((*addrs)[i].String()+":443", "udp", time.Second); ok {
+			if singlePortScan((*addrs)[i].String()+":443", "udp", time.Second) {
 				fmt.Printf("Good: %s\n", (*addrs)[i].String())
 			} else {
 				fmt.Printf("Bad: %s\n", (*addrs)[i].String())
@@ -88,6 +92,21 @@ func scanAddresses(addrs *[]netip.Addr) {
 	wg.Wait()
 }
 
+func singlePortScan(addr string, network string, duration time.Duration) bool {
+	success := true
+	conn, err := net.DialTimeout(network, addr, duration)
+	//defer func() { _ = conn.Close() }() //from some book, didn't apply
+	if conn != nil {
+		conn.Close()
+	}
+	if err != nil {
+		success = false
+		err = nil
+	}
+	return success
+}
+
+/*
 func singlePortScan(addr string, network string, duration time.Duration) (bool, error) {
 	success := true
 	conn, err := net.DialTimeout(network, addr, duration)
@@ -102,3 +121,4 @@ func singlePortScan(addr string, network string, duration time.Duration) (bool, 
 	}
 	return success, err
 }
+*/
