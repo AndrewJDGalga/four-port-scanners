@@ -25,25 +25,19 @@ func main() {
 	}
 }
 
-func scanPorts(addr string, network string, duration time.Duration) {
+func scanPorts(addr string, network string, duration time.Duration) *[]int {
 	minPort := 1
-	maxPort := 65535 //65535
+	maxPort := 65535
 	ports := make([]int, maxPort+1)
-	//portsChan := make(chan []int)
-	//defer close(portsChan)
 	var wg sync.WaitGroup
+
+	//portChan := make(chan []int, maxPort+1)
+
 	for i := minPort; i < maxPort; i++ {
 		wg.Go(func() {
-			//singlePortScan(fmt.Sprintf("127.0.0.1:%d", i), time.Second, i)
-			//if ok, _ := singlePortScan(addr, network, duration); ok {
-			//ports = append(ports, i)
-			//tempSlice := make([]int, 1)
-			//tempSlice[0] = i
-			//portsChan <- tempSlice
-			if singlePortScan(addr, network, duration) {
-				ports[i] = 1
-			} else {
-				fmt.Println("Error")
+			if portOpen(addr+fmt.Sprintf(":%d", i), network, duration) {
+				ports[i] = i
+				fmt.Println("Val: ", i)
 			}
 		})
 		if i%10 == 0 {
@@ -51,38 +45,41 @@ func scanPorts(addr string, network string, duration time.Duration) {
 		}
 	}
 	wg.Wait()
-	//fmt.Println(len(portsChan))
-	//fmt.Println(ports[443])
-	//return ports
 	for i := 1; i < maxPort+1; i++ {
 		if ports[i] == 1 {
 			fmt.Println(i)
 		}
 	}
+	return &ports
 }
 
 func scanAddresses(addrs *[]netip.Addr) {
 	var wg sync.WaitGroup
 	for i := 0; i < len(*addrs); i++ {
 		wg.Go(func() {
-			/*
-				if ok, _ := scanPorts((*addrs)[i].String(), "tcp", time.Second); ok {
+			udpPorts := scanPorts((*addrs)[i].String(), "udp", time.Second)
+			//tcpPorts := scanPorts((*addrs)[i].String(), "tcp", time.Second)
 
+			fmt.Println((*udpPorts)[0])
+			/*
+				for i := 0; i < len(*udpPorts); i++ {
+					if (*udpPorts)[i] != 0 {
+						fmt.Println((*udpPorts)[i])
+					}
+				}*/
+
+			/*
+				if singlePortScan((*addrs)[i].String()+":443", "tcp", time.Second) {
+					fmt.Printf("Good: %s\n", (*addrs)[i].String())
+				} else {
+					fmt.Printf("Bad: %s\n", (*addrs)[i].String())
+				}
+				if singlePortScan((*addrs)[i].String()+":443", "udp", time.Second) {
+					fmt.Printf("Good: %s\n", (*addrs)[i].String())
+				} else {
+					fmt.Printf("Bad: %s\n", (*addrs)[i].String())
 				}
 			*/
-
-			if singlePortScan((*addrs)[i].String()+":443", "tcp", time.Second) {
-				fmt.Printf("Good: %s\n", (*addrs)[i].String())
-			} else {
-				fmt.Printf("Bad: %s\n", (*addrs)[i].String())
-			}
-
-			if singlePortScan((*addrs)[i].String()+":443", "udp", time.Second) {
-				fmt.Printf("Good: %s\n", (*addrs)[i].String())
-			} else {
-				fmt.Printf("Bad: %s\n", (*addrs)[i].String())
-			}
-
 		})
 
 		if i%10 == 0 {
@@ -92,33 +89,15 @@ func scanAddresses(addrs *[]netip.Addr) {
 	wg.Wait()
 }
 
-func singlePortScan(addr string, network string, duration time.Duration) bool {
+func portOpen(addr string, network string, duration time.Duration) bool {
 	success := true
 	conn, err := net.DialTimeout(network, addr, duration)
-	//defer func() { _ = conn.Close() }() //from some book, didn't apply
 	if conn != nil {
 		conn.Close()
 	}
 	if err != nil {
 		success = false
-		err = nil
+		err = nil //good not to leave floating around?
 	}
 	return success
 }
-
-/*
-func singlePortScan(addr string, network string, duration time.Duration) (bool, error) {
-	success := true
-	conn, err := net.DialTimeout(network, addr, duration)
-	if conn != nil {
-		conn.Close()
-	}
-	if err != nil {
-		success = false
-		if opError, ok := err.(*net.OpError); ok && !strings.Contains(opError.Err.Error(), "conn") {
-			err = nil
-		}
-	}
-	return success, err
-}
-*/
