@@ -65,11 +65,20 @@ func scanAddresses(addrs *[]netip.Addr) {
 	var wg sync.WaitGroup
 	for i := 0; i < len(*addrs); i++ {
 		wg.Go(func() {
+			//if ok, _ := scanPorts((*addrs)[i].String())
+
 			if ok, _ := singlePortScan((*addrs)[i].String()+":443", "tcp", time.Second); ok {
 				fmt.Printf("Good: %s\n", (*addrs)[i].String())
 			} else {
 				fmt.Printf("Bad: %s\n", (*addrs)[i].String())
 			}
+
+			if ok, _ := singlePortScan((*addrs)[i].String()+":443", "udp", time.Second); ok {
+				fmt.Printf("Good: %s\n", (*addrs)[i].String())
+			} else {
+				fmt.Printf("Bad: %s\n", (*addrs)[i].String())
+			}
+
 		})
 
 		if i%10 == 0 {
