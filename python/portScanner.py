@@ -60,7 +60,6 @@ async def scan_udp_port(ip, port, timeout, semaphore):
     async with semaphore:
         logging.debug(f"Starting UDP scan for {ip}:{port}")
         try:
-            # Create UDP socket
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             sock.settimeout(timeout)
             logging.debug(f"UDP sending to {ip}:{port}")
